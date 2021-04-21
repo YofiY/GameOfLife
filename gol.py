@@ -1,5 +1,26 @@
-import tkinter as tk
+import numpy as np
+import Tkinter as tk
 
-class GUI(tk.Canvas):
+class Game:
     def __init__(self):
-        pass
+        self.ticks = 0
+        self.state = 0 #pause=0, play=1
+
+    def main(self):
+        self.GUI()
+        self.root.mainloop()
+
+    def GUI(self):
+        self.root = tk.Tk()
+        self.canvas = tk.Canvas(self.root, width=640, height=640, bg="black")
+        self.canvas.pack()
+
+    def tick(self, n=1):
+        self.ticks += n
+
+class Grid:
+    def __init__(self):
+        self.chunk_size = 16    #16x16 block chunks
+
+if __name__ == "__main__":
+    Game().main()
