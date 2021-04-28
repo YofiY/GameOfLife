@@ -1,5 +1,5 @@
 import numpy as np
-import Tkinter as tk
+import tkinter as tk
 
 class Game:
     def __init__(self):
@@ -21,6 +21,9 @@ class Game:
 class Grid:
     def __init__(self):
         self.chunk_size = 16    #16x16 block chunks
+
+    def chunk(self):
+        pass
 
 if __name__ == "__main__":
     Game().main()
