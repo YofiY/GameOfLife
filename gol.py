@@ -4,8 +4,9 @@ import tkinter as tk
 class Game:
     def __init__(self):
         self.ticks = 0
-        self.state = 0  # pause=0, play=1
-        self.zoom = 1   # the zoom scale, higher highest is 1
+        self.state = 0      # pause=0, play=1
+        self.zoom = 1       # the zoom scale, higher highest is 1
+        self.offset = [0,0]  # (x,y) offset in px
 
     def main(self):
         self.GUI()
@@ -23,6 +24,7 @@ class Game:
     def tick(self, n=1):
         self.ticks += n
 
+#https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
 class Grid:
     def __init__(self):
         self.chunk_size = 16    #16x16 blocks chunks
@@ -33,7 +35,7 @@ class Grid:
     def unload_chunk(self): # if chunk is empty, unload it (delete from memory)
         pass
 
-    def update_chunk(self):
+    def update(self):
         pass
 
 if __name__ == "__main__":
