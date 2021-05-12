@@ -50,8 +50,53 @@ class Game:
     def gamelogic(self):
         for base in self.loaded_chunks:
             chunk = self.loaded_chunks[base]
+            right_base, left_base, bottom_base, top_base = (base[0]+16, base[1]), (base[0]-16, base[1]), (base[0], base[1]-16), (base[0])
             print(chunk)
             print(np.shape(chunk))
+
+            for i in range(16):
+                for j in range(16):
+ #-------------------------------------
+                    if i != 0 and j == 0 :
+                      if chunk[i][j] and top_chunk not in loaded_chunks:
+                        load_chunk(top_chunk)
+                         
+                      elif top_chunk in loaded_chunks:
+                        S += top_chunk[i][15]
+ #-------------------------------------
+                if j == 15 and i != 0:
+                  if chunk[i][j]:
+                    load(bottom_chunk)
+
+                  elif bottom_chunk in loaded_chunks:
+                    S += bottom_chunk[i][0]
+ #-------------------------------------
+                if i == 0 and j != 0:
+                  if chunk[i][j]:
+                    load(left_chunk)
+
+                  elif left_chunk in loaded_chunks:
+                    S += left_chunk[15][j]
+ #-------------------------------------
+                if i == 15 and j != 0:
+                  if chunk[i][j]:
+                    load(right_chunk)
+
+                  elif right_chunk in loaded_chunks:
+                    S += right_chunk[0][j]
+ #-------------------------------------
+                if i == 0 and j == 0:
+                    pass
+ #-------------------------------------
+                if i == 15 and j == 15:
+                    pass
+#--------------------------------------
+                if i == 0 and j == 15:
+                    pass
+ #-------------------------------------
+                if i == 15 and j == 0:
+                    pass
+
 
     def update_matrices(E,S):
         pass
