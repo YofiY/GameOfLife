@@ -9,7 +9,10 @@ class Game:
         self.offset = [0,0]  # (x,y) offset in px
         self.loaded_chunks = {
         #(x,y) : array(16x16)
-        (0,0) : np.zeros((16,16)) # matrix base coordinate: list[E, S] where E is the state matrix and S the number of alive neighbours
+        (0,0) : np.zeros((16,16),dtype=np.uint8) # matrix base coordinate
+        }
+        self.board = {
+        (0,0) : np.zeros((16,16),dtype=object) # corresponding board object
         }
         self.zoom = 1 #zoom state: 1 = 100%
 
@@ -21,10 +24,6 @@ class Game:
     def binders(self):
         self.root.bind('<B1-Motion>', self.drag) #drag
         self.root.bind('<Key>', self.keyboard_event_listener)
-        self.root.bind('<Button-1>', self.click)
-
-    def click(self):
-        return
 
     def drag(self, event):
         print('clicked: {}'.format((event.x, event.y)))
@@ -40,18 +39,33 @@ class Game:
             print('dezoom: {}'.format(self.zoom))
         return
 
+    def click(self, event):
+        info = event.widget.grid_info()
+        print(info['row'],info['column'],info['in'])
+
+        event.widget.config(bg='white')
+
+    def draw(self):
+        for chunk in self.loaded_chunks:
+            chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
+            chunk_canvas.grid( row=chunk[0], column=chunk[1])
+            print(chunk_canvas.grid_info())
+            chunk_canvas.pack()
+            for row in range(16):
+                for col in range(16):
+                    if not self.loaded_chunks[chunk][row][col]:
+                        self.board[chunk][row][col] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                    else:
+                        self.board[chunk][row][col] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                    self.board[chunk][row][col].grid( row=row, column=col)
+                    self.board[chunk][row][col].bind('<Button-1>', self.click)
+
     def GUI(self):
         self.root = tk.Tk()
         self.size_in_px = 640
         self.canvas = tk.Canvas(self.root, width=self.size_in_px, height=self.size_in_px, bg="black")
         self.canvas.pack()
-
-    def draw(self):
-        for chunk in loaded_chunks:
-            print(chunk)
-
-    def update_matrices(E,S):
-        pass
+        self.draw()
 
     def tick(self, n=1):
         self.ticks += n
