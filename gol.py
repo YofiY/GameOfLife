@@ -8,8 +8,7 @@ class Game:
         self.zoom = 1       # the zoom scale, higher highest is 1
         self.offset = [0,0]  # (x,y) offset in px
         self.loaded_chunks = {
-        #(x,y) : array(16x16)
-        (0,0) : [np.zeros((16,16)), np.zeros((16,16)] # matrix base coordinate: list[E, S] where E is the state matrix and S the number of alive neighbours
+        (0,0) : np.zeros((16,16)) # matrix base coordinate: list[E, S] where E is the state matrix and S the number of alive neighbours
         }
         self.zoom = 1 #zoom state: 1 = 100%
 
@@ -18,9 +17,6 @@ class Game:
         self.binders()
         self.root.mainloop()
 
-    def binders(self):
-        self.root.bind('<B1-Motion>', self.click) #drag
-        self.root.bind('<Key>', self.keyboard_event_listener)
 
     def GUI(self):
         self.root = tk.Tk()
@@ -30,8 +26,8 @@ class Game:
 
     def draw(self):
         pass
-        
-    def update_matrices(E,S):
+
+    def gamelogic(self, loaded_chunks):
         pass
 
     def tick(self, n=1):
@@ -42,13 +38,17 @@ class Grid:
     def __init__(self):
         self.chunk_size = 16    #16x16 blocks chunks
 
+    def binders(self):
+        self.root.bind('<B1-Motion>', self.click) #drag
+        self.root.bind('<Key>', self.keyboard_event_listener)
+
     def load_chunk(self):
         self.empty = [[0]*self.chunk_size for _ in range(self.chunk_size)]
 
     def unload_chunk(self): # if chunk is empty, unload it (delete from memory)
         pass
 
-    def update(self):
+    def update_matrices(E,S):
         pass
 
     def motion(self, event):
@@ -70,4 +70,11 @@ class Grid:
         return
 
 if __name__ == "__main__":
+    d={
+    'carrot' : 'jus',
+    'michel' : 'lambert'
+    }
+    for i in d:
+        print(i)
+
     Game().main()
