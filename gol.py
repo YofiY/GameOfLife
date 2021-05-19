@@ -7,13 +7,10 @@ class Game:
         self.state = 0      # pause=0, play=1
         self.zoom = 1       # the zoom scale, higher highest is 1
         self.offset = [0,0]  # (x,y) offset in px
-        self.loaded_chunks = {
-        #(x,y) : array(16x16)
-        (0,0) : np.zeros((16,16),dtype=np.uint8) # matrix base coordinate
-        }
-        self.board = {
-        (0,0) : np.zeros((16,16),dtype=object) # corresponding board object
-        }
+        self.values = np.zeros((16,16),dtype=np.uint8) # matrix of values (1 or 0)
+
+        self.board = np.zeros((16,16),dtype=object) # corresponding board object
+
         self.zoom = 1 #zoom state: 1 = 100%
 
     def main(self):
@@ -42,23 +39,28 @@ class Game:
     def click(self, event):
         info = event.widget.grid_info()
         print(info['row'],info['column'],info['in'])
+        print(self.values[info['row']][info['column']])
 
-        event.widget.config(bg='white')
+        if self.values[info['row']][info['column']] == 0:
+            self.values[info['row']][info['column']] = 1
+            event.widget.config(bg='white')
+        else:
+            self.values[info['row']][info['column']] = 0
+            event.widget.config(bg='black')
 
     def draw(self):
-        for chunk in self.loaded_chunks:
-            chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
-            chunk_canvas.grid( row=chunk[0], column=chunk[1])
-            print(chunk_canvas.grid_info())
-            chunk_canvas.pack()
-            for row in range(16):
-                for col in range(16):
-                    if not self.loaded_chunks[chunk][row][col]:
-                        self.board[chunk][row][col] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
-                    else:
-                        self.board[chunk][row][col] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
-                    self.board[chunk][row][col].grid( row=row, column=col)
-                    self.board[chunk][row][col].bind('<Button-1>', self.click)
+        chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
+        #chunk_canvas.grid( row=chunk[0], column=chunk[1])
+        #print(chunk_canvas.grid_info())
+        chunk_canvas.pack()
+        for row in range(16):
+            for col in range(16):
+                if not self.values[row][col]:
+                    self.board[row][col] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                else:
+                    self.board[row][col] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                self.board[row][col].grid( row=row, column=col)
+                self.board[row][col].bind('<Button-1>', self.click)
 
     def GUI(self):
         self.root = tk.Tk()
