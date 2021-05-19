@@ -65,16 +65,16 @@ class Game:
         print('alive neighbours',self.neighbours[info['row']][info['column']])
 
     def draw(self):
-        chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
+        #chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
         #chunk_canvas.grid( row=chunk[0], column=chunk[1])
         #print(chunk_canvas.grid_info())
-        chunk_canvas.pack()
+        #chunk_canvas.pack()
         for row in range(16):
             for col in range(16):
                 if not self.values[row+self.offset[0]][col+self.offset[1]]:
-                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
                 else:
-                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
 
                 self.board[row+self.offset[0]][col+self.offset[1]].grid( row=row+self.offset[0], column=col+self.offset[1])
                 self.board[row+self.offset[0]][col+self.offset[1]].bind('<Button-1>', self.click)
@@ -83,17 +83,36 @@ class Game:
         for i in range(-1,2):
             for j in range(-1,2):
                 if i!=0 or j!=0:  #if not both are 0
-                    if died:
-                        self.neighbours[row+i][col+j] -= 1
-                    else:
-                        self.neighbours[row+i][col+j] += 1
+                    try:
+                        if died:
+                            self.neighbours[row+i][col+j] -= 1
+                        else:
+                            self.neighbours[row+i][col+j] += 1
+                    except: #out of range index error if cell is on edge
+                        pass
+
 
     def update(self):
-        for row in range(1000):
-            for col in range(1000):
-                pass
-        self.draw()
-
+        elements = np.nonzero(self.neighbours)
+        #print(elements)
+        to_update = []
+        for row in elements[0]:
+            for col in elements[1]:
+                if self.values[row][col] == 0 and self.neighbours[row][col] == 3:
+                    print(row,col,'born')
+                    self.values[row][col] = 1
+                    to_update.append([False,row,col])
+                    #self.update_neighbours(False, row, col)
+                        
+                elif self.values[row][col] == 1 and self.neighbours[row][col] != 3 and self.neighbours[row][col] != 2:
+                    print(row,col,'died')
+                    self.values[row][col] = 0
+                    to_update.append([True,row,col])
+                    #self.update_neighbours(True, row, col)   
+        for el in to_update:
+            self.update_neighbours(el[0],el[1],el[2])
+        self.draw()  
+           
 
     def GUI(self):
         self.root = tk.Tk()
