@@ -7,7 +7,7 @@ class Game:
         self.state = 0      # pause=0, play=1
         self.zoom = 1       # the zoom scale, higher highest is 1
         self.offset = [500,500]  # (x,y) offset in px
-        self.values = np.zeros((1000,1000),dtype=np.uint8) # matrix of values (1 or 0)
+        self.values = [[0]*1000]*1000#np.zeros((1000,1000),dtype=np.uint8) # matrix of values (1 or 0)
         self.neighbours = np.zeros((1000,1000),dtype=np.uint8) # neighbours count of each cell
         self.board = np.zeros((1000,1000),dtype=object) # corresponding board object
 
@@ -55,14 +55,14 @@ class Game:
             self.values[info['row']][info['column']] = 1
             event.widget.config(bg='white')
 
-            self.update_neighbours(False, info['row'], info['column'])
+            #self.update_neighbours(False, info['row'], info['column'])
         else:
             self.values[info['row']][info['column']] = 0
             event.widget.config(bg='black')
 
-            self.update_neighbours(True, info['row'], info['column'])
+            #self.update_neighbours(True, info['row'], info['column'])
 
-        print('alive neighbours',self.neighbours[info['row']][info['column']])
+        #print('alive neighbours',self.neighbours[info['row']][info['column']])
 
     def draw(self):
         chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
