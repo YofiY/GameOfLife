@@ -6,10 +6,9 @@ class Game:
         self.ticks = 0
         self.state = 0      # pause=0, play=1
         self.zoom = 1       # the zoom scale, higher highest is 1
-        self.offset = [0,0]  # (x,y) offset in px
-        self.values = np.zeros((16,16),dtype=np.uint8) # matrix of values (1 or 0)
-
-        self.board = np.zeros((16,16),dtype=object) # corresponding board object
+        self.offset = [500,500]  # (x,y) offset in px
+        self.values = np.zeros((1000,1000),dtype=np.uint8) # matrix of values (1 or 0)
+        self.board = np.zeros((1000,1000),dtype=object) # corresponding board object
 
         self.zoom = 1 #zoom state: 1 = 100%
 
@@ -21,6 +20,16 @@ class Game:
     def binders(self):
         self.root.bind('<B1-Motion>', self.drag) #drag
         self.root.bind('<Key>', self.keyboard_event_listener)
+        self.root.bind('<space>', self.setState)
+
+    def setState(self, event):
+        if self.state == 0:
+            self.state =1
+            self.tick()
+            print('PLAY')
+        else:
+            self.state = 0
+            print('PAUSE')
 
     def drag(self, event):
         print('clicked: {}'.format((event.x, event.y)))
@@ -34,7 +43,7 @@ class Game:
         elif event.keycode == 82: #82 = - keycode
             self.zoom = round(0.8 * self.zoom, 4)
             print('dezoom: {}'.format(self.zoom))
-        return
+
 
     def click(self, event):
         info = event.widget.grid_info()
@@ -55,12 +64,17 @@ class Game:
         chunk_canvas.pack()
         for row in range(16):
             for col in range(16):
-                if not self.values[row][col]:
-                    self.board[row][col] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                if not self.values[row+self.offset[0]][col+self.offset[1]]:
+                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(chunk_canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
                 else:
-                    self.board[row][col] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
-                self.board[row][col].grid( row=row, column=col)
-                self.board[row][col].bind('<Button-1>', self.click)
+                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(chunk_canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                self.board[row+self.offset[0]][col+self.offset[1]].grid( row=row+self.offset[0], column=col+self.offset[1])
+                self.board[row+self.offset[0]][col+self.offset[1]].bind('<Button-1>', self.click)
+
+    def update(self):
+        for row in range(1000):
+            for col in range(1000):
+                pass
 
     def GUI(self):
         self.root = tk.Tk()
@@ -71,24 +85,11 @@ class Game:
 
     def tick(self, n=1):
         self.ticks += n
+        print(self.ticks)
+        if self.state == 1:
+            self.root.after(1000, self.tick)
 
 #https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
-class Grid:
-    def __init__(self):
-        self.chunk_size = 16    #16x16 blocks chunks
-
-    def load_chunk(self):
-        self.empty = [[0]*self.chunk_size for _ in range(self.chunk_size)]
-
-    def unload_chunk(self): # if chunk is empty, unload it (delete from memory)
-        pass
-
-    def update(self):
-        pass
-
-    def motion(self, event):
-        print("Mouse position: (%s %s)" % (event.x, event.y))
-        return
 
 if __name__ == "__main__":
     Game().main()
