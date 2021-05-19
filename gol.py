@@ -65,19 +65,21 @@ class Game:
         print('alive neighbours',self.neighbours[info['row']][info['column']])
 
     def draw(self):
-        #chunk_canvas = tk.Frame(self.canvas, width=self.size_in_px, height=self.size_in_px, bg="black")
-        #chunk_canvas.grid( row=chunk[0], column=chunk[1])
-        #print(chunk_canvas.grid_info())
-        #chunk_canvas.pack()
         for row in range(16):
             for col in range(16):
-                if not self.values[row+self.offset[0]][col+self.offset[1]]:
-                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
-                else:
-                    self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                if self.board[row+self.offset[0]][col+self.offset[1]] == 0: #if frame doesnt exist, create
+                    if not self.values[row+self.offset[0]][col+self.offset[1]]:
+                        self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='black', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
+                    else:
+                        self.board[row+self.offset[0]][col+self.offset[1]] = tk.Frame(self.canvas, bg='white', bd=0, width=(self.size_in_px/16), height=(self.size_in_px/16))
 
-                self.board[row+self.offset[0]][col+self.offset[1]].grid( row=row+self.offset[0], column=col+self.offset[1])
-                self.board[row+self.offset[0]][col+self.offset[1]].bind('<Button-1>', self.click)
+                    self.board[row+self.offset[0]][col+self.offset[1]].grid( row=row+self.offset[0], column=col+self.offset[1])
+                    self.board[row+self.offset[0]][col+self.offset[1]].bind('<Button-1>', self.click)
+                else:   #else update
+                    if not self.values[row+self.offset[0]][col+self.offset[1]]:
+                        self.board[row+self.offset[0]][col+self.offset[1]].config(bg='black')
+                    else:
+                        self.board[row+self.offset[0]][col+self.offset[1]].config(bg='white')
 
     def update_neighbours(self, died, row, col):
         for i in range(-1,2):
@@ -91,10 +93,8 @@ class Game:
                     except: #out of range index error if cell is on edge
                         pass
 
-
     def update(self):
         elements = np.nonzero(self.neighbours)
-        #print(elements)
         to_update = []
         for row in elements[0]:
             for col in elements[1]:
@@ -102,14 +102,13 @@ class Game:
                     print(row,col,'born')
                     self.values[row][col] = 1
                     to_update.append([False,row,col])
-                    #self.update_neighbours(False, row, col)
                         
                 elif self.values[row][col] == 1 and self.neighbours[row][col] != 3 and self.neighbours[row][col] != 2:
                     print(row,col,'died')
                     self.values[row][col] = 0
                     to_update.append([True,row,col])
-                    #self.update_neighbours(True, row, col)   
-        for el in to_update:
+        
+        for el in to_update:    # update neighbours only on at the end
             self.update_neighbours(el[0],el[1],el[2])
         self.draw()  
            
@@ -126,9 +125,7 @@ class Game:
         self.update()
         print(self.ticks)
         if self.state == 1:
-            self.root.after(1000, self.tick)
-
-#https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
+            self.root.after(200, self.tick)
 
 if __name__ == "__main__":
     Game().main()
