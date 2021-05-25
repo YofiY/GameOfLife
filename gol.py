@@ -8,20 +8,20 @@ class Game:
         self.state = 0           # pause=0, play=1
         self.sleep_time = 5      # sleep interval in ms
 
-        self.grid_size = (100,100) # if not square, cause bugs with .RLE files (see self.open())
+        self.grid_size = (100,100)    #needs to be square
 
-        self.values = np.zeros(self.grid_size,dtype=np.uint8) # matrix of values (1 or 0)
-        self.neighbours = np.zeros(self.grid_size,dtype=np.uint8) # neighbours count of each cell
-        self.cells = np.zeros(self.grid_size,dtype=object)
+        self.values = np.zeros(self.grid_size,dtype=np.uint8)     # matrix of values (1 or 0)
+        self.neighbours = np.zeros(self.grid_size,dtype=np.uint8) # matrix of neighbours count of each cell
+        self.cells = np.zeros(self.grid_size,dtype=object)        # matrix of cell objects (tk rectangles)
 
         self.screen_size_in_px = 1000 
 
     def main(self):
-        self.GUI()
+        self.gui()
         self.binders()
         self.root.mainloop()
 
-    def GUI(self):
+    def gui(self):
         self.root = tk.Tk()
         self.root.title("Game of Life") 
         self.canvas = tk.Canvas(self.root, width=self.screen_size_in_px, height=self.screen_size_in_px, bg="black")
@@ -29,7 +29,6 @@ class Game:
 
         self.play_btn = tk.Button(self.options, command=self.set_state, text="Play/Pause")
         self.speed = tk.Scale(self.options, command=self.set_speed, from_=5, to=1000, orient="horizontal")
-
         self.open_file_btn = tk.Button(self.options, command=self.open_file, text="Select Pattern (RLE)")
         self.reset_btn = tk.Button(self.options, command=self.reset, text="Reset")
 
@@ -40,8 +39,6 @@ class Game:
         self.speed.pack()
         self.open_file_btn.pack()
         self.reset_btn.pack()
-
-        self.update()
 
     def tick(self, n=1):
         if self.state:  #if play
@@ -78,35 +75,32 @@ class Game:
                 r = []
                 for char in row:
                     if char == 'b':
-                        if n != '':
-                            r += int(n)*[0]
-                            n = ''
-                        else:
-                            r += [0]
+                        if n == '':
+                            n = '1'
+                        r += int(n)*[0]
+                        n = ''
                     elif char =='o':
-                        if n != '':
-                            r += int(n)*[1]
-                            n = ''
-                        else:
-                            r += [1]
+                        if n == '':
+                            n = '1'
+                        r += int(n)*[1]
+                        n = ''
                     elif char =='!':
-                            r += (x-len(r))*[0]
+                        r += (x-len(r))*[0]
+                        break
                     else:
                         n += char
                 a.append(r)
 
-            pattern_values = np.array(a,dtype=np.uint8)
+            pattern_values = np.rot90(np.fliplr(np.array(a,dtype=np.uint8)),1) 
             x_offset, y_offset = (self.grid_size[0]-y)//2, (self.grid_size[1]-x)//2
-
             self.values[x_offset:x_offset+pattern_values.shape[0], y_offset:y_offset+pattern_values.shape[1]] = pattern_values
-            self.values = np.rot90(np.fliplr(self.values),1)    #this is why the grid needs to be square, rot90 only works with square matrix
 
             for x in range(self.grid_size[0]):
                 for y in range(self.grid_size[1]):
                     if self.values[x][y]:
                         self.draw_cell(x, y, 'white')
                         self.update_neighbours(False, x, y)
-        except: #user cancelled
+        except: #user cancelled or grid size too small
             pass
 
     def reset(self):
