@@ -8,7 +8,7 @@ class Game:
         self.state = 0           # pause=0, play=1
         self.sleep_time = 5      # sleep interval in ms
 
-        self.grid_size = (100,100)    #needs to be square
+        self.grid_size = (1000,1000)    #needs to be square
 
         self.values = np.zeros(self.grid_size,dtype=np.uint8)     # matrix of values (1 or 0)
         self.neighbours = np.zeros(self.grid_size,dtype=np.uint8) # matrix of neighbours count of each cell
@@ -56,52 +56,48 @@ class Game:
 
     def open_file(self):     # browse https://www.conwaylife.com/wiki/Main_Page to download .RLE pattern files
         fn = askopenfilename()
-        try:
-            file = open(fn,"r")
-            lines = file.read().split('\n')
-            pattern, x, y = '','',''
-            for line in lines:
-                if line[0] != '#': #if its not a comment
-                    if line[0] == 'x': # first line
-                        args = line.split(',')
-                        x = int(args[0].split(' ')[-1])
-                        y = int(args[1].split(' ')[-1])
-                    else:
-                        pattern += line
+        file = open(fn,"r")
+        lines = file.read().split('\n')
+        pattern, x, y = '','',''
+        for line in lines:
+            if line[0] != '#':      # /!\ FILE MUST NOT CONTAIN END LINES (''[0] = error)
+                if line[0] == 'x':  # first line
+                    args = line.split(',')
+                    x = int(args[0].split(' ')[-1])
+                    y = int(args[1].split(' ')[-1])
+                else:
+                    pattern += line
+        a = []
+        for row in pattern.split('$'):
+            n = ''
+            r = []
+            for char in row:
+                if char == 'b':
+                    if n == '':
+                        n = '1'
+                    r += int(n)*[0]
+                    n = ''
+                elif char =='o':
+                    if n == '':
+                        n = '1'
+                    r += int(n)*[1]
+                    n = ''
+                elif char =='!':
+                    r += (x-len(r))*[0]
+                    break
+                else:
+                    n += char
+            a.append(r)
 
-            a = []
-            for row in pattern.split('$'):
-                n = ''
-                r = []
-                for char in row:
-                    if char == 'b':
-                        if n == '':
-                            n = '1'
-                        r += int(n)*[0]
-                        n = ''
-                    elif char =='o':
-                        if n == '':
-                            n = '1'
-                        r += int(n)*[1]
-                        n = ''
-                    elif char =='!':
-                        r += (x-len(r))*[0]
-                        break
-                    else:
-                        n += char
-                a.append(r)
+        pattern_values = np.rot90(np.fliplr(np.array(a,dtype=np.uint8)),1) 
+        x_offset, y_offset = (self.grid_size[0]-x)//2, (self.grid_size[1]-y)//2
+        self.values[x_offset:x_offset+pattern_values.shape[0], y_offset:y_offset+pattern_values.shape[1]] = pattern_values
 
-            pattern_values = np.rot90(np.fliplr(np.array(a,dtype=np.uint8)),1) 
-            x_offset, y_offset = (self.grid_size[0]-x)//2, (self.grid_size[1]-y)//2
-            self.values[x_offset:x_offset+pattern_values.shape[0], y_offset:y_offset+pattern_values.shape[1]] = pattern_values
-
-            for x in range(self.grid_size[0]):
-                for y in range(self.grid_size[1]):
-                    if self.values[x][y]:
-                        self.draw_cell(x, y, 'white')
-                        self.update_neighbours(False, x, y)
-        except: #user cancelled or grid size too small
-            pass
+        for x in range(self.grid_size[0]):
+            for y in range(self.grid_size[1]):
+                if self.values[x][y]:
+                    self.draw_cell(x, y, 'white')
+                    self.update_neighbours(False, x, y)
 
     def reset(self):
         self.__init__()
