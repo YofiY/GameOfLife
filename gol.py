@@ -23,7 +23,7 @@ class Game:
 
     def gui(self):
         self.root = tk.Tk()
-        self.root.title("Game of Life") 
+        self.root.title("Game of Life")
         self.canvas = tk.Canvas(self.root, width=self.screen_size_in_px, height=self.screen_size_in_px, bg="black")
         self.options = tk.Canvas(self.root, width=200, height=50)
 
@@ -92,7 +92,7 @@ class Game:
                 a.append(r)
 
             pattern_values = np.rot90(np.fliplr(np.array(a,dtype=np.uint8)),1) 
-            x_offset, y_offset = (self.grid_size[0]-y)//2, (self.grid_size[1]-x)//2
+            x_offset, y_offset = (self.grid_size[0]-x)//2, (self.grid_size[1]-y)//2
             self.values[x_offset:x_offset+pattern_values.shape[0], y_offset:y_offset+pattern_values.shape[1]] = pattern_values
 
             for x in range(self.grid_size[0]):
@@ -110,7 +110,7 @@ class Game:
     #### Game ####
     def draw_cell(self, x, y, color):
         if color == 'white':
-            self.cells[x][y] = self.canvas.create_rectangle(x*(self.screen_size_in_px//self.grid_size[0]), y*(self.screen_size_in_px//self.grid_size[1]), (x+1)*(self.screen_size_in_px//self.grid_size[0]), (y+1)*(self.screen_size_in_px//self.grid_size[1]), fill=color, width=0, outline=color)
+            self.cells[x][y] = self.canvas.create_rectangle(x*int(self.screen_size_in_px/self.grid_size[0]), y*int(self.screen_size_in_px/self.grid_size[1]), (x+1)*int(self.screen_size_in_px/self.grid_size[0]), (y+1)*int(self.screen_size_in_px/self.grid_size[1]), fill=color, width=0, outline=color)
         else:
             self.canvas.delete(self.cells[x][y])
 
