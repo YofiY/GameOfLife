@@ -8,7 +8,7 @@ class Game:
         self.state = 0           # pause=0, play=1
         self.sleep_time = 5      # sleep interval in ms
 
-        self.grid_size = (1000,1000)    #needs to be square
+        self.grid_size = (200,200)    #needs to be square
 
         self.values = np.zeros(self.grid_size,dtype=np.uint8)     # matrix of values (1 or 0)
         self.neighbours = np.zeros(self.grid_size,dtype=np.uint8) # matrix of neighbours count of each cell
@@ -28,17 +28,23 @@ class Game:
         self.options = tk.Canvas(self.root, width=200, height=50)
 
         self.play_btn = tk.Button(self.options, command=self.set_state, text="Play/Pause")
+        self.speed_label = tk.Label(self.options, text="Set Speed : ")
         self.speed = tk.Scale(self.options, command=self.set_speed, from_=5, to=1000, orient="horizontal")
-        self.open_file_btn = tk.Button(self.options, command=self.open_file, text="Select Pattern (RLE)")
+        self.open_file_btn = tk.Button(self.options, command=self.open_file, text="Select Pattern (.RLE)")
         self.reset_btn = tk.Button(self.options, command=self.reset, text="Reset")
+        self.size = tk.Entry(self.options, bd =5)
+        self.set_size_btn = tk.Button(self.options, command=self.set_size, text="Set Grid")
 
         self.canvas.pack()
         self.options.pack()
 
-        self.play_btn.pack()
-        self.speed.pack()
-        self.open_file_btn.pack()
-        self.reset_btn.pack()
+        self.play_btn.grid(row=0,column=0)
+        self.reset_btn.grid(row=0,column=1)
+        self.open_file_btn.grid(row=0,column=2)
+        self.speed_label.grid(row=0,column=3)
+        self.speed.grid(row=0,column=4)
+        self.size.grid(row=0,column=5)
+        self.set_size_btn.grid(row=0,column=6)
 
     def tick(self, n=1):
         if self.state:  #if play
@@ -53,6 +59,17 @@ class Game:
 
     def set_speed(self,value):
         self.sleep_time = int(value)
+
+    def set_size(self):
+        try:
+            value = int(self.size.get())
+            self.reset()
+            self.grid_size = (value,value)
+            self.values = np.zeros(self.grid_size,dtype=np.uint8)     # matrix of values (1 or 0)
+            self.neighbours = np.zeros(self.grid_size,dtype=np.uint8) # matrix of neighbours count of each cell
+            self.cells = np.zeros(self.grid_size,dtype=object)        # matrix of cell objects (tk rectangles)
+        except:
+            pass
 
     def open_file(self):     # browse https://www.conwaylife.com/wiki/Main_Page to download .RLE pattern files
         fn = askopenfilename()
